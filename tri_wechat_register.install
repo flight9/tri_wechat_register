@@ -3,23 +3,29 @@
 /*
  * Implements hook_schema
  */
-/*
 function tri_wechat_register_schema() {
-	$schema['mytable'] = array(
-		'description' => 'Information about node views',
-		'fields' => array(
-			'nid' => array(
-				'type' => 'int',
-				'unsigned' => TRUE,
-				'not null' => TRUE,
-				'default' => 0,
-				'description' => "The node's {node}.nid.",
-			),
-		),
-		'primary key' => array('nid','uid'),
-	);
+	$schema['wechat_login_user'] = array(
+            'description' => 'Link wechat openid with our user id.',
+            'fields' => array(
+              'openid' => array(
+                'description' => 'wechat user\'s openid',
+                'type' => 'varchar',
+                'length' => '32',
+                'not null' => TRUE,
+              ),
+              'uid' => array(
+                'description' => 'our user id',
+                'type' => 'int',
+                'unsigned' => TRUE,
+                'not null' => TRUE,
+                'default' => 0,
+              ),
+            ),
+            'primary key' => array('openid', 'uid'),
+          );
 	
 	return $schema;
 }
-*/
+
+
 
