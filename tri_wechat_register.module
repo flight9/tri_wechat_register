@@ -26,10 +26,10 @@ function tri_wechat_register_page() {
 		return drupal_get_form('tri_wechat_register_form');
 	}
 	elseif( $chk == 'not_approved') {
-		//TO: do some PROMPT
+		//TODO: do some PROMPT
 	} 
 	else {	//'have_approved'
-		//TO: auto login
+		//TODO: auto login
 	}
 	
 	return 'hello';
@@ -56,13 +56,26 @@ function _id_have_registered($openid) {
 function tri_wechat_register_form($form, &$form_state) {
     $form['username'] = array(
             '#type' => 'textfield',
-            '#title' => t('Cake or pie?'),
-            '#description' => t('Would you like cake or pie?'),
-            '#options' => array(
-                    'cake' => t('Cake please'),
-                    'pie' => t('Pie I guess'),
-            ),
-            '#default_value' => 'cake',
+            '#title' => t('Username'),
+            '#description' => t('Your username.'),
+            '#required' => TRUE,
+    );
+    $form['password'] = array(
+            '#type' => 'password_confirm',
+            '#title' => t('Password'),
+            '#description' => t('Your password.'),
+            '#required' => TRUE,
+    );
+    $form['email'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Email'),
+            '#description' => t('Email address.'),
+            '#required' => TRUE,
+    );
+    $form['mobile'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Mobile'),
+            '#description' => t('Mobile phoone number'),
             '#required' => TRUE,
     );
     //Submit
@@ -79,7 +92,7 @@ function tri_wechat_register_form($form, &$form_state) {
  * Form validate
  */
 function tri_wechat_register_form_validate(&$form, &$form_state) {
-
+    //TODO: necessary validation
 }
 
 
@@ -87,6 +100,17 @@ function tri_wechat_register_form_validate(&$form, &$form_state) {
  * Form submit
  */
 function tri_wechat_register_form_submit(&$form, &$form_state) {
-
+    //create user
+    
+    //save to wechat table(with openid)
 }
+
+/**
+ * Help function
+ */
+function _save_wechat_login_user($openid, $uid) {
+    
+}
+
+
 
