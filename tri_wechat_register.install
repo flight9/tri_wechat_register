@@ -1,0 +1,25 @@
+<?php
+
+/*
+ * Implements hook_schema
+ */
+/*
+function tri_wechat_register_schema() {
+	$schema['mytable'] = array(
+		'description' => 'Information about node views',
+		'fields' => array(
+			'nid' => array(
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'not null' => TRUE,
+				'default' => 0,
+				'description' => "The node's {node}.nid.",
+			),
+		),
+		'primary key' => array('nid','uid'),
+	);
+	
+	return $schema;
+}
+*/
+

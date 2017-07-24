@@ -1,0 +1,92 @@
+<?php
+
+/**
+ * Implements hook_menu
+ */
+function tri_wechat_register_menu() {
+	$items = array();	
+	$items['tri-wechat-register'] =  array(
+		'title' => 'Wechat entrance',
+		'page callback' => 'tri_wechat_register_page',
+		'access arguments' => array('access content'), 
+	);
+	return $items;
+}
+
+
+/**
+ * Page callback
+ */
+function tri_wechat_register_page() {
+	$openid = _get_wechat_openid();
+	
+	$chk = _id_have_registered($openid);
+	if($chk == 'not_registered') {
+		//show register form
+		return drupal_get_form('tri_wechat_register_form');
+	}
+	elseif( $chk == 'not_approved') {
+		//TO: do some PROMPT
+	} 
+	else {	//'have_approved'
+		//TO: auto login
+	}
+	
+	return 'hello';
+}
+
+/**
+ * help function
+ */
+function _get_wechat_openid() {
+    return 'abcdefg123';
+}
+
+/**
+ * help funtion
+ */
+function _id_have_registered($openid) {
+    return 'not_registered';
+}
+
+
+/**
+ * Form create
+ */
+function tri_wechat_register_form($form, &$form_state) {
+    $form['username'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Cake or pie?'),
+            '#description' => t('Would you like cake or pie?'),
+            '#options' => array(
+                    'cake' => t('Cake please'),
+                    'pie' => t('Pie I guess'),
+            ),
+            '#default_value' => 'cake',
+            '#required' => TRUE,
+    );
+    //Submit
+    $form['buttons']['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Register'),
+    );
+
+    return $form;
+}
+
+
+/**
+ * Form validate
+ */
+function tri_wechat_register_form_validate(&$form, &$form_state) {
+
+}
+
+
+/**
+ * Form submit
+ */
+function tri_wechat_register_form_submit(&$form, &$form_state) {
+
+}
+

@@ -1,0 +1,7 @@
+name = Tri Wechat Register
+description = Let wechat user register an account.
+core = 7.x
+package = zzzz
+
+
+
