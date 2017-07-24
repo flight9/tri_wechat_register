@@ -21,7 +21,10 @@ function tri_wechat_register_schema() {
                 'default' => 0,
               ),
             ),
-            'primary key' => array('openid', 'uid'),
+            'primary key' => array('openid'),
+			'unique keys' => array(
+				'uid' => array('uid')
+			),
           );
 	
 	return $schema;
