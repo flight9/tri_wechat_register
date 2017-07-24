@@ -39,7 +39,7 @@ function tri_wechat_register_page() {
  * help function
  */
 function _get_wechat_openid() {
-    return 'abcdefg123';
+    return 'abcdefghijklmn1234567890';
 }
 
 /**
@@ -101,15 +101,32 @@ function tri_wechat_register_form_validate(&$form, &$form_state) {
  */
 function tri_wechat_register_form_submit(&$form, &$form_state) {
     //create user
+	$user;
     
     //save to wechat table(with openid)
+	$openid = ii;
+	$nid = _save_wechat_login_user($openid, $user->id)
+	
+	//redirect
+	if( $nid> 0 ) {
+		$form_state['redirect'] = '';
+	} else {
+		drupal_set_message( t('Failed! Something wrong with database.'),'error');
+	}
 }
 
 /**
  * Help function
  */
 function _save_wechat_login_user($openid, $uid) {
-    
+    $nid = db_insert('wechat_login_user')
+		->fields(array('openid','uid'))
+		->values(array(
+			'openid' => $openid,
+			'uid' => $uid,
+		))
+		->execute();
+	return $nid;
 }
 
 
