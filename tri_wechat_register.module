@@ -19,6 +19,9 @@ function tri_wechat_register_menu() {
  */
 function tri_wechat_register_page() {
 	$openid = _get_wechat_openid();
+	if( $openid) {
+		$_SESSION['openid'] = $openid;
+	}
 	
 	$chk = _id_have_registered($openid);
 	if($chk == 'not_registered') {
@@ -26,13 +29,15 @@ function tri_wechat_register_page() {
 		return drupal_get_form('tri_wechat_register_form');
 	}
 	elseif( $chk == 'not_approved') {
-		//TODO: do some PROMPT
+		//TODO: show not_approved
+		$content = 'not approved';
 	} 
 	else {	//'have_approved'
 		//TODO: auto login
+		$content = 'auto login ...';
 	}
 	
-	return 'hello';
+	return $content;
 }
 
 /**
@@ -46,7 +51,22 @@ function _get_wechat_openid() {
  * help funtion
  */
 function _id_have_registered($openid) {
-    return 'not_registered';
+	//read wechat_login_user
+	$query = db_select('wechat_login_user', 'w');
+	$query->join('users', 'u', 'w.uid = u.uid');
+	$result = $query->fields('w', array('openid'))
+		->fields('u', array('uid', 'status'))
+		->condition('openid', $openid)
+		->execute()->fetch();
+	#krumo($result);
+	
+	if($result === FALSE) {
+		return 'not_registered';
+	} elseif( $result->status == 0) {
+		return 'not_approved';
+	} else {
+		return 'have_approved';
+	}
 }
 
 
@@ -83,7 +103,7 @@ function tri_wechat_register_form($form, &$form_state) {
             '#type' => 'submit',
             '#value' => t('Register'),
     );
-
+	
     return $form;
 }
 
@@ -101,32 +121,46 @@ function tri_wechat_register_form_validate(&$form, &$form_state) {
  */
 function tri_wechat_register_form_submit(&$form, &$form_state) {
     //create user
-	$user;
+	$field_mobile =  array(
+		'und' => array(
+			0 => array(
+				'value' => $form_state['values']['mobile'],
+			),
+		),
+	);
+	$fields = array(
+		'name' => $form_state['values']['username'],
+		'mail' => $form_state['values']['email'],
+		'pass' => $form_state['values']['password'],
+		'status' => 0,
+		'field_mobile' => $field_mobile,
+		'init' => $form_state['values']['email'],
+		'roles' => array(
+			4 => 'wechat authenticated',
+		),
+	);
+	$account = user_save('', $fields);
+	#krumo($account); exit;
     
     //save to wechat table(with openid)
-	$openid = ii;
-	$nid = _save_wechat_login_user($openid, $user->id)
+	$openid = $_SESSION['openid'];
+	_save_wechat_login_user($openid, $account->uid);
 	
 	//redirect
-	if( $nid> 0 ) {
-		$form_state['redirect'] = '';
-	} else {
-		drupal_set_message( t('Failed! Something wrong with database.'),'error');
-	}
+	$form_state['redirect'] = 'TODO';	//show not_approved OR no redirect?
 }
 
 /**
  * Help function
  */
 function _save_wechat_login_user($openid, $uid) {
-    $nid = db_insert('wechat_login_user')
+    $query = db_insert('wechat_login_user')
 		->fields(array('openid','uid'))
 		->values(array(
 			'openid' => $openid,
 			'uid' => $uid,
 		))
 		->execute();
-	return $nid;
 }
 
 
