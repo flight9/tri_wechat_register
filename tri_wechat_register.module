@@ -44,11 +44,11 @@ function tri_wechat_register_page() {
 	}
 	elseif( $chk == 'not_approved') {
 		//TODO: show not_approved
-		$content = 'not approved';
+		$content = t('You account has been registed and waiting to be approved.');
 	} 
 	else {	//'have_approved'
 		//TODO: auto login
-		$content = 'auto login ...';
+		$content = t('You account has been approved. Now we login automatically...');
 	}
 	
 	return $content;
@@ -136,7 +136,27 @@ function tri_wechat_register_form($form, &$form_state) {
  * Form validate
  */
 function tri_wechat_register_form_validate(&$form, &$form_state) {
-    //TODO: necessary validation
+    //Necessary validation
+	//valid username
+	if( $user_error = user_validate_name($form_state['values']['username'])) {
+		form_set_error('username', $user_error);
+	}
+	
+	//TODO: valid password?
+	if( valid_email_address($form_state['values']['email'])===false) {
+		form_set_error('email', t('Please input a valid email address.'));
+	}
+	
+	//valid email
+	if( strlen($form_state['values']['password'])< 4) {
+		form_set_error('password', t('Please use a password longer than 4 characters.'));
+	}
+	
+	//valid mobile number
+	$re = '/(^(13\d|15[^4,\D]|17[13678]|18\d)\d{8}|170[^346,\D]\d{7})$/i';
+	if( preg_match($re, $form_state['values']['mobile']) == 0) {
+		form_set_error('mobile', t('Please input a valid mobile number.'));
+	}
 }
 
 
