@@ -1,12 +1,20 @@
 <?php
 
+//Import Wechat
+require_once 'weichat.class.php';
+const WECHAT_APPID = 'wxa4ddad61df39d191';
+const WECHAT_APPSECRET = '298befb9e2bd11279f8af392390803dd';
+const WECHAT_TOKEN = '';
+
+header('Content-Type:text/html; charset=utf-8');
+
 /**
  * Implements hook_menu
  */
 function tri_wechat_register_menu() {
 	$items = array();	
 	$items['tri-wechat-register'] =  array(
-		'title' => 'Wechat entrance',
+		'title' => 'Register for Wechat',
 		'page callback' => 'tri_wechat_register_page',
 		'access arguments' => array('access content'), 
 	);
@@ -18,9 +26,15 @@ function tri_wechat_register_menu() {
  * Page callback
  */
 function tri_wechat_register_page() {
-	$openid = _get_wechat_openid();
-	if( $openid) {
-		$_SESSION['openid'] = $openid;
+	if(empty($_POST)) {
+		$openid = _get_wechat_openid();
+		if( $openid) {
+			$_SESSION['openid'] = $openid;
+		} else {
+			exit;
+		}
+	} else {
+		$openid = $_SESSION['openid'];
 	}
 	
 	$chk = _id_have_registered($openid);
@@ -44,7 +58,17 @@ function tri_wechat_register_page() {
  * help function
  */
 function _get_wechat_openid() {
-    return 'abcdefghijklmn1234567890';
+	#krumo($_GET);
+	//1. 授权回调网页域名 更新。
+	//2. 菜单入口 更新，比如:
+	//https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa4ddad61df39d191&redirect_uri=http%3A%2F%2F6kaqbc.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_base&state=0#wechat_redirect
+	
+	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
+	$openid = $wc->getOAuth2UserInfo(true);
+	#krumo($openid);
+	
+    return $openid;
+    #return 'abcdefghijklmn1234567890';
 }
 
 /**
