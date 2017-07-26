@@ -142,14 +142,15 @@ function tri_wechat_register_form_validate(&$form, &$form_state) {
 		form_set_error('username', $user_error);
 	}
 	
-	//TODO: valid password?
-	if( valid_email_address($form_state['values']['email'])===false) {
-		form_set_error('email', t('Please input a valid email address.'));
+	//valid password?
+	$re = '/^[a-z0-9_-]{6,18}$/i';
+	if( preg_match($re, $form_state['values']['password']) == 0) {
+		form_set_error('password', t('Please use a safer password.'));
 	}
 	
 	//valid email
-	if( strlen($form_state['values']['password'])< 4) {
-		form_set_error('password', t('Please use a password longer than 4 characters.'));
+	if( valid_email_address($form_state['values']['email'])===false) {
+		form_set_error('email', t('Please input a valid email address.'));
 	}
 	
 	//valid mobile number
