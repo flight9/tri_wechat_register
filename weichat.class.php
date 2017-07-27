@@ -143,7 +143,7 @@ class WeiChat {
     
     /**
      * 获取网页OAuth2.0的用户信息
-     * @param type $only_openid true:仅获取openid即可, false:获取详细用户信息
+     * @param type $only_openid true:仅获取openid即可, false:获取详细用户信息(注意:后者调用前入口API改 scope=snsapi_userinfo, 否则报错)
      * @return mixed 错误时返回false
      */
     public function getOAuth2UserInfo($only_openid = true) {
@@ -166,10 +166,12 @@ class WeiChat {
         } else {
             $access_token = $r_obj->access_token;
             $openid = $r_obj->openid;
-            return $openid;
         }
+		if( $only_openid) {
+            return $openid;
+		}
         //获取用户详细信息
-        if( !$only_openid) {
+        else {
             $url = 'https://api.weixin.qq.com/sns/userinfo?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN';
             $result = curl_request($url);
             $r_obj = json_decode($result);

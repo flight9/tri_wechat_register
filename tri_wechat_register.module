@@ -36,18 +36,9 @@ function tri_wechat_register_user_delete($account) {
  * Page callback
  */
 function tri_wechat_register_page() {
-	if(empty($_POST)) {
-		$openid = _get_wechat_openid();
-		if( $openid) {
-			$_SESSION['openid'] = $openid;
-		} else {
-			exit;
-		}
-	} else {
-		$openid = $_SESSION['openid'];
-	}
+	$wc_user = _get_wechat_user();
 	
-	$chk = _id_have_registered($openid);
+	$chk = _user_have_registered($wc_user);
 	if($chk == 'not_registered') {
 		//show register form
 		return drupal_get_form('tri_wechat_register_form');
@@ -55,6 +46,10 @@ function tri_wechat_register_page() {
 	elseif( $chk == 'not_approved') {
 		//TODO: show not_approved
 		$content = t('You account has been registed and waiting to be approved.');
+	} 
+	elseif( $chk == 'denied') {
+		//TODO: show not_approved
+		$content = t('Sorry, you account registration has been denied.');
 	} 
 	else {	//'have_approved'
 		//TODO: auto login
@@ -67,30 +62,34 @@ function tri_wechat_register_page() {
 /**
  * help function
  */
-function _get_wechat_openid() {
+function _get_wechat_user() {
 	#krumo($_GET);
 	//1. 授权回调网页域名 更新。
 	//2. 菜单入口 更新，比如:
-	//https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa4ddad61df39d191&redirect_uri=http%3A%2F%2F6kaqbc.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_base&state=0#wechat_redirect
+	//https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa4ddad61df39d191&redirect_uri=http%3A%2F%2F6kaqbc.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect
 	
-	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
-	$openid = $wc->getOAuth2UserInfo(true);
-	#krumo($openid);
+	if(empty($_SESSION['wc_user'])) {
+		$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
+		$wc_user = $wc->getOAuth2UserInfo(false);
+		$_SESSION['wc_user'] = $wc_user;
+	} else {
+		$wc_user = $_SESSION['wc_user'];
+	}
+	krumo($wc_user);
 	
-    return $openid;
-    #return 'abcdefghijklmn1234567890';
+    return $wc_user;
 }
 
 /**
  * help funtion
  */
-function _id_have_registered($openid) {
+function _user_have_registered($wc_user) {
 	//read wechat_login_user
 	$query = db_select('wechat_login_user', 'w');
 	$query->join('users', 'u', 'w.uid = u.uid');
 	$result = $query->fields('w', array('openid'))
 		->fields('u', array('uid', 'status'))
-		->condition('openid', $openid)
+		->condition('openid', $wc_user->openid)
 		->execute()->fetch();
 	#krumo($result);
 	
@@ -198,8 +197,8 @@ function tri_wechat_register_form_submit(&$form, &$form_state) {
 	#krumo($account); exit;
     
     //save to wechat table(with openid)
-	$openid = $_SESSION['openid'];
-	_save_wechat_login_user($openid, $account->uid);
+	$wc_user = _get_wechat_user();
+	_save_wechat_login_user($wc_user, $account->uid);
 	
 	//redirect
 	$form_state['redirect'] = 'TODO';	//show not_approved OR no redirect?
@@ -208,11 +207,11 @@ function tri_wechat_register_form_submit(&$form, &$form_state) {
 /**
  * Help function
  */
-function _save_wechat_login_user($openid, $uid) {
+function _save_wechat_login_user($wc_user, $uid) {
     $query = db_insert('wechat_login_user')
 		->fields(array('openid','uid'))
 		->values(array(
-			'openid' => $openid,
+			'openid' => $wc_user->openid,
 			'uid' => $uid,
 		))
 		->execute();
