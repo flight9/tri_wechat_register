@@ -149,8 +149,8 @@ class WeiChat {
     public function getOAuth2UserInfo($only_openid = true) {
         //必须传入微信服务器提供的code
         if(!isset($_GET['code'])) { 
-            echo '错误：参数错误！';
-            return false;
+            exit( '错误：参数错误！');
+            #return false;
         }
         //获取openid和网页access_token
         $code = $_GET['code'];
