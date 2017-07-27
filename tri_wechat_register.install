@@ -20,7 +20,57 @@ function tri_wechat_register_schema() {
                 'not null' => TRUE,
                 'default' => 0,
               ),
-            ),
+			 'user_link_type' => array(
+				'description' => '0:pending_approval 1:approved 2:denied',
+				'type' => 'int',
+				'size' => 'tiny',
+				'not null' => TRUE,
+				'default' => 0,
+			  ),
+			  'nickname' => array(
+				'description' => 'nickname',
+				'type' => 'varchar',
+				'length' => '60',
+				'not null' => TRUE,
+			  ),
+			  'sex' => array(
+				'description' => '1:male 2:female',
+				'type' => 'int',
+				'unsigned' => TRUE,
+				'size' => 'tiny',
+				'not null' => TRUE,
+			  ),
+			  'language' => array(
+				'description' => 'language',
+				'type' => 'varchar',
+				'length' => '20',
+				'not null' => TRUE,
+			  ),
+			  'city' => array(
+				'description' => 'city',
+				'type' => 'varchar',
+				'length' => '50',
+				'not null' => TRUE,
+			  ),
+			  'province' => array(
+				'description' => 'province',
+				'type' => 'varchar',
+				'length' => '50',
+				'not null' => TRUE,
+			  ),
+			  'country' => array(
+				'description' => 'country',
+				'type' => 'varchar',
+				'length' => '50',
+				'not null' => TRUE,
+			  ),
+			  'headimgurl' => array(
+				'description' => 'headimgurl',
+				'type' => 'varchar',
+				'length' => '250',
+				'not null' => TRUE,
+			  ),
+			),
             'primary key' => array('openid'),
 			'unique keys' => array(
 				'uid' => array('uid')

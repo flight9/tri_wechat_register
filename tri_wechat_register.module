@@ -209,10 +209,17 @@ function tri_wechat_register_form_submit(&$form, &$form_state) {
  */
 function _save_wechat_login_user($wc_user, $uid) {
     $query = db_insert('wechat_login_user')
-		->fields(array('openid','uid'))
-		->values(array(
+		->fields(array(
 			'openid' => $wc_user->openid,
 			'uid' => $uid,
+			'user_link_type' => 0,
+			'nickname' => $wc_user->nickname,
+			'sex' => $wc_user->sex,
+			'language' => $wc_user->language,
+			'city' => $wc_user->city,
+			'province' => $wc_user->province,
+			'country' => $wc_user->country,
+			'headimgurl' => $wc_user->headimgurl,
 		))
 		->execute();
 }
