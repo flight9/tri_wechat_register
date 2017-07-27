@@ -23,6 +23,16 @@ function tri_wechat_register_menu() {
 
 
 /**
+ * Implements hook_user_delete()
+ */
+function tri_wechat_register_user_delete($account) {
+	#watchdog('tri_wechat_register', 'del user:'.$account->uid);
+	$query = db_delete('wechat_login_user')
+		->condition('uid', $account->uid)
+		->execute();	
+}
+
+/**
  * Page callback
  */
 function tri_wechat_register_page() {
