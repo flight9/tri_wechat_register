@@ -2,9 +2,7 @@
 
 //Import Wechat
 require_once 'weichat.class.php';
-const WECHAT_APPID = 'wxa4ddad61df39d191';
-const WECHAT_APPSECRET = '298befb9e2bd11279f8af392390803dd';
-const WECHAT_TOKEN = '';
+require_once 'wechat_account.php';
 
 header('Content-Type:text/html; charset=utf-8');
 
