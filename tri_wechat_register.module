@@ -30,10 +30,32 @@ function tri_wechat_register_user_delete($account) {
 		->execute();	
 }
 
+/*
+ * Implements hook_entity_info()
+ */
+function tri_wechat_register_entity_info() {
+	$info = array();
+	$info['tri_wechat_user'] = array(
+		'label' => t('Wechat User'),
+		'base table' => 'wechat_login_user',
+		'entity keys' => array( 
+			'id' => 'openid', //pk
+			'label' => 'nickname', //entity label
+		),
+		'uri callback' => 'entity_class_uri',
+		'entity class' => 'TriWechatUserEntity',
+		'controller class' => 'TriWechatUserEntityController',
+		'views controller class' => 'EntityDefaultViewsController',
+	);
+	return $info;
+}
+
 /**
  * Page callback
  */
 function tri_wechat_register_page() {
+	#$ent_user = entity_load('tri_wechat_user',array('ot7Dm0y_ky4WiDzdwuskqtrfE4Ac')); krumo($ent_user);
+	
 	$wc_user = _get_wechat_user();
 	
 	$chk = _user_have_registered($wc_user);
@@ -222,5 +244,55 @@ function _save_wechat_login_user($wc_user, $uid) {
 		->execute();
 }
 
+/**
+ * Entity class
+ */
+class TriWechatUserEntity extends Entity {
+	
+}
 
+/**
+ * Entity controller class
+ */
+class TriWechatUserEntityController extends EntityAPIController {
 
+}
+
+/*
+ * Implements hook_entity_property_info()
+ */
+function tri_wechat_register_entity_property_info() {
+	$info = array();
+	$properties = &$info['tri_wechat_user']['properties'];
+	
+	/*
+	$properties['id'] = array(
+		'label' => t('Openid'),
+		'description' => t('The openid of the wechat user'),
+        'type' => 'text',
+        'schema field' => 'openid',
+		'entity views field' => TRUE,
+	);*/
+	
+	$properties['user'] = array(
+		'label' => t("TriUser"),
+		'type' => 'user',
+		'description' => t("The user refered."),
+		'getter callback' => 'entity_metadata_node_get_properties',
+		'setter callback' => 'entity_metadata_node_set_properties',
+		//'setter permission' => 'administer nodes',
+		'required' => TRUE,
+		'schema field' => 'uid',
+		'entity views field' => TRUE,
+	);
+	/*
+	$properties['link_type'] = array(
+		'label' => t("User link type"),
+		'type' => 'integer',
+		'description' => t("'Pending, Approved or Denied"),
+		'schema field' => 'user_link_type',
+		//'entity views field' => TRUE,
+	);*/
+	
+	return $info;
+}
