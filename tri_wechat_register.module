@@ -43,6 +43,7 @@ function tri_wechat_register_entity_info() {
 			'label' => 'nickname', //entity label
 		),
 		'uri callback' => 'entity_class_uri',
+		'module' => 'tri_wechat_register',
 		'entity class' => 'TriWechatUserEntity',
 		'controller class' => 'TriWechatUserEntityController',
 		'views controller class' => 'EntityDefaultViewsController',
@@ -265,34 +266,72 @@ function tri_wechat_register_entity_property_info() {
 	$info = array();
 	$properties = &$info['tri_wechat_user']['properties'];
 	
-	/*
-	$properties['id'] = array(
+	$properties['openid'] = array(
 		'label' => t('Openid'),
 		'description' => t('The openid of the wechat user'),
         'type' => 'text',
         'schema field' => 'openid',
-		'entity views field' => TRUE,
-	);*/
-	
+	);
+	// for RELATIONSHIPS
 	$properties['user'] = array(
 		'label' => t("TriUser"),
 		'type' => 'user',
-		'description' => t("The user refered."),
+		'description' => t("The user referenced."),
 		'getter callback' => 'entity_metadata_node_get_properties',
 		'setter callback' => 'entity_metadata_node_set_properties',
 		//'setter permission' => 'administer nodes',
 		'required' => TRUE,
 		'schema field' => 'uid',
-		'entity views field' => TRUE,
+		//'entity views field' => TRUE,
 	);
-	/*
-	$properties['link_type'] = array(
+	$properties['user_link_type'] = array(
 		'label' => t("User link type"),
 		'type' => 'integer',
-		'description' => t("'Pending, Approved or Denied"),
+		'description' => t("Pending, Approved or Denied"),
 		'schema field' => 'user_link_type',
-		//'entity views field' => TRUE,
-	);*/
+	);
+	$properties['nickname'] = array(
+		'label' => t("Nickname"),
+		'type' => 'text',
+		'description' => t("Nickname of the user"),
+		'schema field' => 'nickname',
+	);
+	$properties['sex'] = array(
+		'label' => t("Sex"),
+		'type' => 'integer',
+		'description' => t("Gender of the user"),
+		'schema field' => 'sex',
+	);
+	$properties['language'] = array(
+		'label' => t("Language"),
+		'type' => 'text',
+		'description' => t("Language the user using"),
+		'schema field' => 'language',
+	);
+	$properties['city'] = array(
+		'label' => t("City"),
+		'type' => 'text',
+		'description' => t("City the user lives"),
+		'schema field' => 'city',
+	);
+	$properties['province'] = array(
+		'label' => t("Province"),
+		'type' => 'text',
+		'description' => t("Province the user lives"),
+		'schema field' => 'province',
+	);
+	$properties['country'] = array(
+		'label' => t("Country"),
+		'type' => 'text',
+		'description' => t("Country the user lives"),
+		'schema field' => 'country',
+	);
+	$properties['headimgurl'] = array(
+		'label' => t("Headimgurl"),
+		'type' => 'text',
+		'description' => t("Headimgurl of the user."),
+		'schema field' => 'headimgurl',
+	);
 	
 	return $info;
 }
