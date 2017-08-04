@@ -293,6 +293,7 @@ function tri_wechat_register_entity_property_info() {
 		'type' => 'integer',
 		'description' => t("Pending, Approved or Denied"),
 		'setter callback' => 'entity_property_verbatim_set',
+		'options list' => 'tri_wechat_user_user_link_type_get_names',
 		'schema field' => 'user_link_type',
 	);
 	$properties['nickname'] = array(
@@ -420,4 +421,15 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
 	$ok = $wc->sendTemplateMsg($to_user, $temp_id, $link, $data);
 	#dsm($ok);
+}
+
+/**
+ * option list callback
+ */
+function tri_wechat_user_user_link_type_get_names() {
+	return array(
+		LINKTYPE_PENDING_APPROVAL => t('Pending approval'),
+		LINKTYPE_APPROVED => t('Approved'),
+		LINKTYPE_DENIED => t('Denied'),
+	);
 }
