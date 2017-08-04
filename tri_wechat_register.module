@@ -2,7 +2,11 @@
 
 //Import Wechat
 require_once 'weichat.class.php';
-require_once 'wechat_account.php';
+require_once 'wechat_account_test.php';
+
+const LINKTYPE_PENDING_APPROVAL = 0;
+const LINKTYPE_APPROVED = 1;
+const LINKTYPE_DENIED = 2;
 
 header('Content-Type:text/html; charset=utf-8');
 
@@ -288,6 +292,7 @@ function tri_wechat_register_entity_property_info() {
 		'label' => t("User link type"),
 		'type' => 'integer',
 		'description' => t("Pending, Approved or Denied"),
+		'setter callback' => 'entity_property_verbatim_set',
 		'schema field' => 'user_link_type',
 	);
 	$properties['nickname'] = array(
@@ -334,4 +339,53 @@ function tri_wechat_register_entity_property_info() {
 	);
 	
 	return $info;
+}
+
+/*
+ * Implements hook_action_info()
+ */
+function tri_wechat_register_action_info() {
+	return array(
+		'tri_wechat_register_approve_action' => array(
+			'type' => 'entity',
+			'label' => t('Authorise user'),
+			'behavior' => array('changes_property'),
+			'configurable' => FALSE,
+			'vbo_configurable' => FALSE,
+			'triggers' => array('any'),
+			'pass rows' => TRUE,
+		),
+		'tri_wechat_register_deny_action' => array(
+			'type' => 'entity',
+			'label' => t('Deny user'),
+			'behavior' => array('changes_property'),
+			'configurable' => FALSE,
+			'vbo_configurable' => FALSE,
+			'triggers' => array('any'),
+			'pass rows' => TRUE,
+		),
+	);
+}
+
+/**
+ * action callback
+ */
+function tri_wechat_register_approve_action(&$entity, $context) {
+	#dsm($entity);
+	#dsm($context);
+	#dsm($user_wp->getPropertyInfo());
+	$user_wp = entity_metadata_wrapper('tri_wechat_user', $entity);
+	$user_wp->user_link_type->set(LINKTYPE_APPROVED);
+	$user_wp->save();
+	
+	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
+}
+
+/**
+ * action callback
+ */
+function tri_wechat_register_deny_action(&$entity, $context) {
+	$user_wp = entity_metadata_wrapper('tri_wechat_user', $entity);
+	$user_wp->user_link_type->set(LINKTYPE_DENIED);
+	$user_wp->save();
 }
