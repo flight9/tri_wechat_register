@@ -33,44 +33,43 @@ class WeiChat {
      * @param string $key
      * @return mixed 错误时返回false
      */
-//    private function getCacheValue($key) {
-//        if( defined('RUN_ON_SAE') && RUN_ON_SAE) {
-//            //新浪SAE时，读取Memcached里是否有token
-//            $mem = new Memcached();     //sae连接本应用数据库
-//            $content = $mem->get($key);
-//            return $content;
-//        } else {
-//            //如果token文件存在，则直接读文件
-//            $file = './'.$key;
-//            if( file_exists($file)) {
-//                $content = file_get_contents($file);
-//                $content = json_decode($content, true);
-//                if( time()-filemtime($file)< $content['expires_in']) {	/*filemtime文件编辑时间*/
-//                    return $content[$key];
-//                }
-//            }
-//            return false;
-//        }
-//    }
+    private function getCacheValue($key) {
+        if( defined('RUN_ON_SAE') && RUN_ON_SAE) {
+            $mem = new Memcached();
+            $content = $mem->get($key);
+            return $content;
+        } else {
+            //如果token文件存在，则直接读文件
+            $file = './'.$key;
+            if( file_exists($file)) {
+                $content = file_get_contents($file);
+                $content = json_decode($content, true);
+                if( time()-filemtime($file)< $content['expires_in']) {	/*filemtime文件编辑时间*/
+                    return $content[$key];
+                }
+            }
+            return false;
+        }
+    }
     
     /**
      * 设置缓存中的值
      * @param string $key
      * @return void
      */
-//    private function setCacheValue($key, $value, $expires_in) {
-//        if(defined('RUN_ON_SAE') && RUN_ON_SAE) {
-//            $mem = new Memcached();
-//            return $mem->set($key, $value, $expires_in);
-//        } else {
-//            $file = './'.$key;
-//            $js_obj = array(
-//                $key        => $value,
-//                'expires_in'=> $expires_in,
-//            );
-//            return file_put_contents($file, json_encode($js_obj));
-//        }
-//    }
+    private function setCacheValue($key, $value, $expires_in) {
+        if(defined('RUN_ON_SAE') && RUN_ON_SAE) {
+            $mem = new Memcached();
+            return $mem->set($key, $value, $expires_in);
+        } else {
+            $file = './'.$key;
+            $js_obj = array(
+                $key        => $value,
+                'expires_in'=> $expires_in,
+            );
+            return file_put_contents($file, json_encode($js_obj));
+        }
+    }
 
     /**
      * 获取二维码Ticket
