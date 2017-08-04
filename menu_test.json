@@ -1,0 +1,41 @@
+
+
+{"button":[
+{
+   "name":"访问我们",
+   "sub_button":[
+	{	
+	   "type":"view",
+	   "name":"注册",
+	   "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx97eaa4a1320ff795&redirect_uri=http%3A%2F%2Fkyxg4z.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect"
+	},
+	{
+	   "type":"view",
+	   "name":"登录",
+	   "url":"https://app.trifocus.com"
+	},
+	]
+},
+{
+   "name":"菜单2",
+   "sub_button":[
+			{	
+	   "type":"location_select",
+	   "name":"银行",
+	   "key":"FUJIN_BANK"
+	},
+	]
+},
+{
+   "name":"菜单3",
+   "sub_button":[
+			{	
+	   "type":"click",
+	   "name":"讲笑话",
+	   "key":"XIU_JOKE"
+	},
+	]
+}]
+}
+
+
