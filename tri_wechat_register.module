@@ -70,7 +70,7 @@ function tri_wechat_register_page() {
 	}
 	elseif( $chk == 'not_approved') {
 		//TODO: show not_approved
-		$content = t('You account has been registed and waiting to be approved.');
+		$content = t('You account has been registed and pending to be approved.');
 	} 
 	elseif( $chk == 'denied') {
 		//TODO: show not_approved
@@ -88,12 +88,12 @@ function tri_wechat_register_page() {
  * help function
  */
 function _get_wechat_user() {
-	#krumo($_GET);
 	//1. 授权回调网页域名 更新。
-	//2. 菜单入口 更新，比如:
-	//https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxa4ddad61df39d191&redirect_uri=http%3A%2F%2F6kaqbc.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect
+	//2. 菜单入口更新(包含 appid, redirect_uri)，比如:
+	//https://open.weixin.qq.com/connect/oauth2/authorize?appid={wxa4ddad61df39d191}&redirect_uri=http%3A%2F%2F6kaqbc.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect
 	
-	if(empty($_SESSION['wc_user'])) {
+	// 微信浏览器关闭后始终保存 session,所以主号/测试号切换时不能用 empty($_SESSION[]) 判断
+	if(empty($_POST)) {	
 		$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
 		$wc_user = $wc->getOAuth2UserInfo(false);
 		$_SESSION['wc_user'] = $wc_user;
@@ -379,9 +379,18 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	$user_wp->save();
 	
 	$to_user = $entity->openid;
-	$temp_id = 'HY77fg8zGE59ms04sgRT7qrnr5P5hvqcPesXP3wB78E';
+	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
 	$link = 'https://app.trifocus.com';
-	$data = array();
+	$data = array(
+		'keyword1' => array(
+			'value' => '恭喜！您注册的账号已通过审核。',
+			'color' => '#173177',
+		),
+		'keyword2' => array(
+			'value' => '您可以从菜单进入，正式使用我们网站提供的服务。',
+			'color' => '#173177',
+		),
+	);
 	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
 	$ok = $wc->sendTemplateMsg($to_user, $temp_id, $link, $data);
 	#dsm($ok);
@@ -396,9 +405,18 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	$user_wp->save();
 	
 	$to_user = $entity->openid;
-	$temp_id = 'udJ74m-y4hz4v1ewWVV3fBOTm6P2w8nwSuldikqg6v4';
+	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
 	$link = 'https://app.trifocus.com';
-	$data = array();
+	$data = array(
+		'keyword1' => array(
+			'value' => '抱歉！您注册的账号未通过审核。',
+			'color' => '#173177',
+		),
+		'keyword2' => array(
+			'value' => '请与我们运维联系查明原因，电话:+86 21 6226 9775',
+			'color' => '#173177',
+		),
+	);
 	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
 	$ok = $wc->sendTemplateMsg($to_user, $temp_id, $link, $data);
 	#dsm($ok);
