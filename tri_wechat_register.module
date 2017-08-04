@@ -92,11 +92,19 @@ function _get_wechat_user() {
 	//2. 菜单入口更新(包含 appid, redirect_uri)，比如:
 	//https://open.weixin.qq.com/connect/oauth2/authorize?appid={wxa4ddad61df39d191}&redirect_uri=http%3A%2F%2F6kaqbc.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect
 	
-	// 微信浏览器关闭后始终保存 session,所以主号/测试号切换时不能用 empty($_SESSION[]) 判断
-	if(empty($_POST)) {	
+	// 微信浏览器关闭后始终保存 session,所以正式号/测试号切换时不能用 empty($_SESSION[]) 判断
+	$last_code = isset($_SESSION['last_code'])?$_SESSION['last_code']:'';
+	$new_code =	isset($_GET['code'])? $_GET['code']:'';	//drupal_get_query_parameters();
+	if(empty($new_code)) {
+		exit('Error: Wrong parameters!');
+	}
+	// ---- no  test ------------
+	
+	if($last_code != $new_code) {		//empty($_POST)
 		$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
 		$wc_user = $wc->getOAuth2UserInfo(false);
 		$_SESSION['wc_user'] = $wc_user;
+		$_SESSION['last_code'] = $new_code;
 	} else {
 		$wc_user = $_SESSION['wc_user'];
 	}
