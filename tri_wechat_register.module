@@ -378,7 +378,13 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	$user_wp->user_link_type->set(LINKTYPE_APPROVED);
 	$user_wp->save();
 	
+	$to_user = $entity->openid;
+	$temp_id = 'HY77fg8zGE59ms04sgRT7qrnr5P5hvqcPesXP3wB78E';
+	$link = 'https://app.trifocus.com';
+	$data = array();
 	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
+	$ok = $wc->sendTemplateMsg($to_user, $temp_id, $link, $data);
+	#dsm($ok);
 }
 
 /**
@@ -388,4 +394,12 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	$user_wp = entity_metadata_wrapper('tri_wechat_user', $entity);
 	$user_wp->user_link_type->set(LINKTYPE_DENIED);
 	$user_wp->save();
+	
+	$to_user = $entity->openid;
+	$temp_id = 'udJ74m-y4hz4v1ewWVV3fBOTm6P2w8nwSuldikqg6v4';
+	$link = 'https://app.trifocus.com';
+	$data = array();
+	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
+	$ok = $wc->sendTemplateMsg($to_user, $temp_id, $link, $data);
+	#dsm($ok);
 }

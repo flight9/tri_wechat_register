@@ -16,7 +16,7 @@ class WeiChat {
      * @return string
      */
     public function getAccesstoken() {
-        if( $access_token = getCacheValue('access_token')) {
+        if( $access_token = $this->getCacheValue('access_token')) {
             return $access_token;
         }
         
@@ -24,7 +24,7 @@ class WeiChat {
         $url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=$this->_appid&secret=$this->_appsecret";
         $content = curl_request($url);
         $acc_obj = json_decode($content);
-        setCacheValue('access_token', $acc_obj->access_token, $acc_obj->expires_in);
+        $this->setCacheValue('access_token', $acc_obj->access_token, $acc_obj->expires_in);
         return $acc_obj->access_token;
     }
     
@@ -246,7 +246,7 @@ class WeiChat {
      * @return string
      */
     private function getJsApiTicket() {
-        if( $jsapi_ticket = getCacheValue('jsapi_ticket')) {
+        if( $jsapi_ticket = $this->getCacheValue('jsapi_ticket')) {
             return $jsapi_ticket;
         }
         //重新获取
@@ -254,7 +254,7 @@ class WeiChat {
             $this->getAccesstoken();
         $content = curl_request($url);
         $js_obj = json_decode($content);
-        setCacheValue('jsapi_ticket', $js_obj->ticket, $js_obj->expires_in);
+        $this->setCacheValue('jsapi_ticket', $js_obj->ticket, $js_obj->expires_in);
         return $js_obj->ticket;
     }
 
