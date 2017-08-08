@@ -67,22 +67,26 @@ function tri_wechat_register_page() {
 	// new module:check_wechat_auth
 	$wc_user = _get_wechat_user();
 	
-	$chk = _user_have_registered($wc_user);
-	if($chk == 'not_registered') {
+	$wc_tri_user = _get_wc_tri_user_status($wc_user);
+	if($wc_tri_user === false) {
 		//show register form
 		return drupal_get_form('tri_wechat_register_form');
 	}
-	elseif( $chk == 'pending_approval') {
+	elseif( $wc_tri_user->user_link_type == LINKTYPE_PENDING_APPROVAL) {
 		//TODO: show not_approved
 		$content = t('You account has been registed and pending to be approved.');
 	} 
-	elseif( $chk == 'have_denied') {
-		//TODO: show not_approved
+	elseif( $wc_tri_user->user_link_type == LINKTYPE_DENIED) {
+		//TODO: show have_denied
 		$content = t('Sorry, you account registration has been denied.');
 	} 
 	else {	//'have_approved'
 		//TODO: auto login
-		$content = t('You account has been approved. Now we login automatically...');
+		$content = t('You account has been approved. Now you have login automatically...');
+		
+		$form_state = array();
+		$form_state['uid'] = $wc_tri_user->uid;
+		user_login_submit(array(), $form_state);
 	}
 	
 	return $content;
@@ -121,7 +125,7 @@ function _get_wechat_user() {
 /**
  * help funtion
  */
-function _user_have_registered($wc_user) {
+function _get_wc_tri_user_status($wc_user) {
 	//read wechat_login_user
 	$query = db_select('wechat_login_user', 'w');
 	$query->join('users', 'u', 'w.uid = u.uid');
@@ -131,15 +135,7 @@ function _user_have_registered($wc_user) {
 		->execute()->fetch();
 	#krumo($result);
 	
-	if($result === FALSE) {
-		return 'not_registered';
-	} elseif( $result->user_link_type == LINKTYPE_PENDING_APPROVAL) {
-		return 'pending_approval';
-	} elseif( $result->user_link_type == LINKTYPE_APPROVED) {
-		return 'have_approved';
-	} else {
-		return 'have_denied';
-	}
+	return $result;
 }
 
 
