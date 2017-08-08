@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <title>微信JSSDK上传图片测试</title>
+    <!-- 引入 WeUI -->
+    <link rel="stylesheet" href="http://cdn.bootcss.com/weui/0.4.3/style/weui.min.css">
+    <link rel="stylesheet" href="http://cdn.bootcss.com/jquery-weui/0.8.0/css/jquery-weui.min.css">
+</head>
+<body ontouchstart>
+    <!-- 使用 WeUI -->
+	<form method="post" action="" id='form_add'>
+		<input type="hidden" name="openid" value="<?=$openid?>"/>
+		<div class="weui_cells_title">这里是标题</div>
+		<div class="weui_cells weui_cells_form">
+			<div class="weui_cell">
+				<div class="weui_cell_hd"><label class="weui_label">照片</label></div>
+				<div class="weui_cell_bd weui_cell_primary">
+					<input class="weui_input" type="text" name="photo_server_id" placeholder="点右边按钮" readonly="readonly" >
+				</div>
+				<div class="weui_cell_ft">
+					<a href="javascript:;" onclick="takePhoto();" class="weui_btn weui_btn_mini weui_btn_primary">拍照</a>
+				</div>
+			</div>
+			<input type="submit" class="weui_btn weui_btn_disabled weui_btn_primary" disabled="disabled" value="提交"/>
+		</div>
+	</form>
+
+	<script src="http://cdn.bootcss.com/jquery/1.11.0/jquery.min.js"></script>
+	<script src="http://cdn.bootcss.com/jquery-weui/0.8.0/js/jquery-weui.min.js"></script>
+	<script src="http://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+    <script src="http://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+	
+	<!-- 自定义函数 -->
+	<script type="text/javascript">
+		wx.config({
+			debug: false,                    	//true开启调试模式。
+			appId: '<?=$jscfg["appId"]?>', 
+			timestamp: '<?=$jscfg["timestamp"]?>', 
+			nonceStr: '<?=$jscfg["nonceStr"]?>', 
+			signature: '<?=$jscfg["signature"]?>',
+			jsApiList: ['chooseImage','uploadImage','scanQRCode'],	//看具体要调用的接口
+		});
+	</script>
+        
+	<script type="text/javascript">
+		function takePhoto() {
+			wx.chooseImage({
+				count: 1, // 默认9
+				sizeType: ['original', 'compressed'], //'original', 'compressed'
+				sourceType: ['camera'], 			// 'album', 'camera'
+				success: function (res) {
+					var localIds = res.localIds; // localId可以作为img标签的src属性显示图片
+					//alert(localIds[0]);
+					uploadPhoto(localIds[0]);
+				}
+			});
+		}
+		
+		function uploadPhoto( localId) {
+			wx.uploadImage({
+				localId: localId, 
+				isShowProgressTips: 1, // 显示进度提示
+				success: function (res) {
+					var serverId = res.serverId; 
+					alert(serverId); 
+					$('input[name=photo_server_id]').val(serverId);
+				}
+			});
+		}
+	
+		function scanUrl() {
+			wx.scanQRCode({
+				needResult: 1, // 1则直接返回扫描结果，
+				scanType: ["qrCode"], 
+				success: function (res) {
+					var result = res.resultStr;
+					cleanUrl(result);
+				},
+			});
+		}
+		
+		function cleanUrl(raw_url) {
+			var shopcd = $('input[name=shop]').val();
+			var pdata = {raw_url:raw_url, shop:shopcd};
+			$.ajax({
+				url: '/index.php?p=weixin&c=wechat&a=ajaxclean',
+				data: pdata,
+				type: 'post',
+				dataType: 'json',
+				success: function(msg) {
+					if(msg.status == 0) {
+						$('input[name=goods_url]').val(msg.data);
+						checkUrl();
+					} else {
+						$.toptip(msg.message, 'error');
+					}
+				},
+			});
+		}
+		
+		function checkUrl() {
+			//获取url
+			var goods_url = $('input[name=goods_url]').val();
+			if(goods_url == '') {
+				$.toast("‘商品网址’不能为空!", "cancel");
+				return;
+			}
+			var shopcd = $('input[name=shop]').val();
+
+			//获取商品名称
+			var pdata = {goods_url:goods_url,shop:shopcd};
+			$.ajax({
+				url: '/index.php?p=weixin&c=wechat&a=ajaxprice',
+				data: pdata,
+				type: 'post',
+				dataType: 'json',
+				success: function(msg) {
+					console.log(msg);
+					if(msg.status != 0) {
+						$('input[name=goods_name]').val('');
+						$('input[name=old_price]').val(-1);
+						$('input[name=comment]').val(msg.message);
+						$.toptip('获取失败！', 'error');
+					} else {
+						$('input[name=goods_name]').val(msg.data.name);
+						$('input[name=old_price]').val(msg.data.price);
+						$('input[name=comment]').val(msg.data.comment);
+						$.toptip('获取成功！', 'success');
+						$('input[type=submit]').removeClass('weui_btn_disabled');
+						$('input[type=submit]').removeProp('disabled');
+					}
+				},
+				complete: function(XHR, TS) {
+					$.hideLoading();
+				},
+			});
+			$.showLoading("正在获取...");
+		}
+	</script>
+</body>
+</html>

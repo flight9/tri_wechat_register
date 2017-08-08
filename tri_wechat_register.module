@@ -23,6 +23,11 @@ function tri_wechat_register_menu() {
 		'page callback' => 'tri_wechat_register_page',
 		'access arguments' => array('access content'), 
 	);
+	$items['tri-wechat-register/test-input'] =  array(
+		'title' => 'Test input for JSSDK',
+		'page callback' => 'tri_wechat_register_test_input_page',
+		'access arguments' => array('access content'), 
+	);
 	return $items;
 }
 
@@ -90,6 +95,18 @@ function tri_wechat_register_page() {
 	}
 	
 	return $content;
+}
+
+/**
+ * Page callback
+ */
+function tri_wechat_register_test_input_page() {
+	$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
+	$jscfg = $wc->getJswxConfig();
+	$openid = 'TEST_OPENID';
+	
+	include 'input-camera.html';
+	#return 'hello';
 }
 
 /**
@@ -293,8 +310,8 @@ function tri_wechat_register_entity_property_info() {
 		'type' => 'user',
 		'description' => t("The user referenced."),
 		'getter callback' => 'entity_metadata_node_get_properties',
-		'setter callback' => 'entity_metadata_node_set_properties',
-		//'setter permission' => 'administer nodes',
+		'setter callback' => 'entity_property_verbatim_set',
+		'setter permission' => 'administer nodes',
 		'required' => TRUE,
 		'schema field' => 'uid',
 		//'entity views field' => TRUE,
@@ -394,6 +411,8 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	$tri_user->status = USER_STATUS_ACTIVE;
 	$tri_user->save();
 	
+	#dsm($user_wp->user->name->value()); //error why?
+	
 	$to_user = $entity->openid;
 	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
 	$link = 'http://kyxg4z.natappfree.cc/node/add/data-entry';
@@ -426,7 +445,7 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	
 	$to_user = $entity->openid;
 	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
-	$link = 'https://app.trifocus.com';
+	$link = 'http://kyxg4z.natappfree.cc/tri-wechat-register/test-input';
 	$data = array(
 		'keyword1' => array(
 			'value' => '抱歉！您注册的账号未通过审核。',
