@@ -1,12 +1,15 @@
 <?php
 
 //Import Wechat
+const USE_TEST_ACCOUNT = true;
 require_once 'weichat.class.php';
 require_once 'wechat_account_test.php';
 
 const LINKTYPE_PENDING_APPROVAL = 0;
 const LINKTYPE_APPROVED = 1;
 const LINKTYPE_DENIED = 2;
+const USER_STATUS_ACTIVE = 1;
+const USER_STATUS_BLOCKED = 0;
 
 header('Content-Type:text/html; charset=utf-8');
 
@@ -61,6 +64,7 @@ function tri_wechat_register_entity_info() {
 function tri_wechat_register_page() {
 	#$ent_user = entity_load('tri_wechat_user',array('ot7Dm0y_ky4WiDzdwuskqtrfE4Ac')); krumo($ent_user);
 	
+	// new module:check_wechat_auth
 	$wc_user = _get_wechat_user();
 	
 	$chk = _user_have_registered($wc_user);
@@ -68,11 +72,11 @@ function tri_wechat_register_page() {
 		//show register form
 		return drupal_get_form('tri_wechat_register_form');
 	}
-	elseif( $chk == 'not_approved') {
+	elseif( $chk == 'pending_approval') {
 		//TODO: show not_approved
 		$content = t('You account has been registed and pending to be approved.');
 	} 
-	elseif( $chk == 'denied') {
+	elseif( $chk == 'have_denied') {
 		//TODO: show not_approved
 		$content = t('Sorry, you account registration has been denied.');
 	} 
@@ -99,7 +103,7 @@ function _get_wechat_user() {
 		exit(t('Error: Wrong parameters!'));
 	}
 	
-	if($last_code != $new_code) {		//empty($_POST)
+	if($last_code != $new_code && !empty($new_code)) {		//empty($_POST)
 		$wc = new WeiChat(WECHAT_APPID, WECHAT_APPSECRET, WECHAT_TOKEN);
 		$wc_user = $wc->getOAuth2UserInfo(false);
 		$_SESSION['wc_user'] = $wc_user;
@@ -121,7 +125,7 @@ function _user_have_registered($wc_user) {
 	//read wechat_login_user
 	$query = db_select('wechat_login_user', 'w');
 	$query->join('users', 'u', 'w.uid = u.uid');
-	$result = $query->fields('w', array('openid'))
+	$result = $query->fields('w', array('openid','user_link_type'))
 		->fields('u', array('uid', 'status'))
 		->condition('openid', $wc_user->openid)
 		->execute()->fetch();
@@ -129,10 +133,12 @@ function _user_have_registered($wc_user) {
 	
 	if($result === FALSE) {
 		return 'not_registered';
-	} elseif( $result->status == 0) {
-		return 'not_approved';
-	} else {
+	} elseif( $result->user_link_type == LINKTYPE_PENDING_APPROVAL) {
+		return 'pending_approval';
+	} elseif( $result->user_link_type == LINKTYPE_APPROVED) {
 		return 'have_approved';
+	} else {
+		return 'have_denied';
 	}
 }
 
@@ -290,8 +296,8 @@ function tri_wechat_register_entity_property_info() {
 		'label' => t("TriUser"),
 		'type' => 'user',
 		'description' => t("The user referenced."),
-		'getter callback' => 'entity_metadata_node_get_properties',
-		'setter callback' => 'entity_metadata_node_set_properties',
+		'getter callback' => 'entity_metadata_user_get_properties',
+		'setter callback' => 'entity_metadata_user_set_properties',
 		//'setter permission' => 'administer nodes',
 		'required' => TRUE,
 		'schema field' => 'uid',
@@ -388,9 +394,13 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	$user_wp->user_link_type->set(LINKTYPE_APPROVED);
 	$user_wp->save();
 	
+	$tri_user = entity_metadata_wrapper('user', $entity->uid);
+	$tri_user->status = USER_STATUS_ACTIVE;
+	$tri_user->save();
+	
 	$to_user = $entity->openid;
 	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
-	$link = 'https://app.trifocus.com';
+	$link = 'http://kyxg4z.natappfree.cc/node/add/data-entry';
 	$data = array(
 		'keyword1' => array(
 			'value' => '恭喜！您注册的账号已通过审核。',
@@ -413,6 +423,10 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	$user_wp = entity_metadata_wrapper('tri_wechat_user', $entity);
 	$user_wp->user_link_type->set(LINKTYPE_DENIED);
 	$user_wp->save();
+	
+	$tri_user = entity_metadata_wrapper('user', $entity->uid);
+	$tri_user->status = USER_STATUS_BLOCKED;
+	$tri_user->save();
 	
 	$to_user = $entity->openid;
 	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
