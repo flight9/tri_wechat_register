@@ -2,8 +2,10 @@
 
 //Import Wechat
 const USE_TEST_ACCOUNT = true;
-require_once 'weichat.class.php';
-require_once 'wechat_account_test.php';
+//require_once 'weichat.class.php';
+//require_once 'wechat_account_test.php';
+module_load_include('php', 'tri_wechat_api', 'wechat_account_test');
+module_load_include('php', 'tri_wechat_api', 'weichat.class');
 
 const LINKTYPE_PENDING_APPROVAL = 0;
 const LINKTYPE_APPROVED = 1;
