@@ -4,6 +4,11 @@
 {
    "name":"访问我们",
    "sub_button":[
+        {	
+	   "type":"view",
+	   "name":"路由",
+	   "url":"http://kyxg4z.natappfree.cc/tri-wechat-register-router/home"
+	},
 	{	
 	   "type":"view",
 	   "name":"注册",
@@ -31,7 +36,7 @@
    "sub_button":[
 			{	
 	   "type":"click",
-	   "name":"讲笑话",
+	   "name":"巨龙",
 	   "key":"XIU_JOKE"
 	},
 	]

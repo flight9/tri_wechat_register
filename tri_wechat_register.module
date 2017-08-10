@@ -2,8 +2,6 @@
 
 //Import Wechat
 const USE_TEST_ACCOUNT = true;
-//require_once 'weichat.class.php';
-//require_once 'wechat_account_test.php';
 module_load_include('php', 'tri_wechat_api', 'wechat_account_test');
 module_load_include('php', 'tri_wechat_api', 'weichat.class');
 
@@ -20,14 +18,25 @@ header('Content-Type:text/html; charset=utf-8');
  */
 function tri_wechat_register_menu() {
 	$items = array();	
-	$items['tri-wechat-register'] =  array(
+	$items['tri-wechat-register'] =  array(		//will be abandoned
 		'title' => 'Register for Wechat',
 		'page callback' => 'tri_wechat_register_page',
 		'access arguments' => array('access content'), 
 	);
-	$items['tri-wechat-register/test-input'] =  array(
+	$items['tri-wechat-register/test-input'] =  array(	//only for test
 		'title' => 'Test input for JSSDK',
 		'page callback' => 'tri_wechat_register_test_input_page',
+		'access arguments' => array('access content'), 
+	);
+	$items['tri-wechat-register-router/%'] =  array(	//to wrap the url
+		'title' => 'Wechat Router',
+		'page callback' => 'tri_wechat_register_router_page',
+		'access arguments' => array('access content'), 
+		'page arguments' => array(1),
+	);
+	$items['tri-wechat-register/check'] =  array(		//code to check or offer a form
+		'title' => 'Register for Wechat',
+		'page callback' => 'tri_wechat_register_check_page',
 		'access arguments' => array('access content'), 
 	);
 	return $items;
@@ -74,7 +83,7 @@ function tri_wechat_register_page() {
 	// new module:check_wechat_auth
 	$wc_user = _get_wechat_user();
 	
-	$wc_tri_user = _get_wc_tri_user_status($wc_user);
+	$wc_tri_user = _get_wc_user_status($wc_user);
 	if($wc_tri_user === false) {
 		//show register form
 		return drupal_get_form('tri_wechat_register_form');
@@ -136,7 +145,7 @@ function _get_wechat_user() {
 		$wc_user = $_SESSION['wc_user'];
 		#krumo('old_code');
 	}
-	krumo($wc_user);
+	#krumo($wc_user);
 	
     return $wc_user;
 }
@@ -144,7 +153,7 @@ function _get_wechat_user() {
 /**
  * help funtion
  */
-function _get_wc_tri_user_status($wc_user) {
+function _get_wc_user_status($wc_user) {
 	//read wechat_login_user
 	$query = db_select('wechat_login_user', 'w');
 	$query->join('users', 'u', 'w.uid = u.uid');
@@ -255,8 +264,8 @@ function tri_wechat_register_form_submit(&$form, &$form_state) {
 	$wc_user = _get_wechat_user();
 	_save_wechat_login_user($wc_user, $account->uid);
 	
-	//redirect
-	$form_state['redirect'] = 'TODO';	//show not_approved OR no redirect?
+	//no need to redirect, for D will go back to start status
+	//$form_state['redirect'] = 'TODO';	//another page?
 }
 
 /**
@@ -416,7 +425,7 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	#dsm($user_wp->user->name->value()); //error why?
 	
 	$to_user = $entity->openid;
-	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
+	$temp_id = WECHAT_TEMPL_ID_APPROVAL;	// 认证进度通知
 	$link = 'http://kyxg4z.natappfree.cc/node/add/data-entry';
 	$data = array(
 		'keyword1' => array(
@@ -446,7 +455,7 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	$tri_user->save();
 	
 	$to_user = $entity->openid;
-	$temp_id = 'cLsTPx-bp2QxOI8RZGorZjAhHSf-INaoYkeekufh75w';	// 认证进度通知
+	$temp_id = WECHAT_TEMPL_ID_APPROVAL;	// 认证进度通知
 	$link = 'http://kyxg4z.natappfree.cc/tri-wechat-register/test-input';
 	$data = array(
 		'keyword1' => array(
@@ -472,4 +481,56 @@ function tri_wechat_user_user_link_type_get_names() {
 		LINKTYPE_APPROVED => t('Approved'),
 		LINKTYPE_DENIED => t('Denied'),
 	);
+}
+
+/**
+ * page callback
+ */
+function tri_wechat_register_router_page($real_uri) {
+	$appid = WECHAT_APPID;
+	$chk_url = urlencode(WECHAT_DOMAIN . '/tri-wechat-register/check');
+	$make_url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$chk_url}&response_type=code&scope=snsapi_userinfo&state={$real_uri}#wechat_redirect";
+	#return $make_url;
+	drupal_goto($make_url);
+}
+
+/**
+ * Page callback
+ */
+function tri_wechat_register_check_page() {
+	#$ent_user = entity_load('tri_wechat_user',array('ot7Dm0y_ky4WiDzdwuskqtrfE4Ac')); krumo($ent_user);
+	
+	// new module:check_wechat_auth
+	$wc_user = _get_wechat_user();
+	$get_state = isset($_GET['state'])? $_GET['state']:'home';
+	$user_status = _get_wc_user_status($wc_user);
+	global $wccfg_state_path;
+	
+	if($user_status === false) {
+		//show register form
+		return drupal_get_form('tri_wechat_register_form');
+	}
+	elseif( $user_status->user_link_type == LINKTYPE_PENDING_APPROVAL) {
+		$content = t('You account has registed and pending to be approved.');
+		return $content;
+	} 
+	elseif( $user_status->user_link_type == LINKTYPE_DENIED) {
+		$content = t('Sorry, you account registration has been denied.');
+		return $content;
+	} 
+	else {	//'have_approved'
+//		$content = t('You account has been approved. Now you have login automatically...').$get_state;
+//		return $content;
+		
+		// auto login
+		$form_state = array();
+		$form_state['uid'] = $user_status->uid;
+		user_login_submit(array(), $form_state);
+		
+		//goto
+		$path = $wccfg_state_path[$get_state];
+		if(empty($path))	$path = '/';
+		drupal_goto($path);
+	}
+	
 }
