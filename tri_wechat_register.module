@@ -1,7 +1,6 @@
 <?php
 
-//Import Wechat
-const USE_TEST_ACCOUNT = true;
+//Import Wechat Api
 module_load_include('php', 'tri_wechat_api', 'wechat_account_test');
 module_load_include('php', 'tri_wechat_api', 'weichat.class');
 
@@ -431,7 +430,7 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	
 	$to_user = $entity->openid;
 	$temp_id = WECHAT_TEMPL_ID_APPROVAL;	// 认证进度通知
-	$link = 'http://kyxg4z.natappfree.cc/node/add/data-entry';
+	$link = 'http://kyxg4z.natappfree.cc/tri-wechat-register-router/addentry';
 	$data = array(
 		'keyword1' => array(
 			'value' => '恭喜！您注册的账号已通过审核。',
@@ -536,6 +535,7 @@ function tri_wechat_register_check_page() {
 		$path = $wccfg_state_path[$get_state];
 		if(empty($path))	$path = '/';
 		drupal_goto($path);
+		#krumo($path);
 	}
 }
 
