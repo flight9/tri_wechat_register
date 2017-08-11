@@ -39,6 +39,11 @@ function tri_wechat_register_menu() {
 		'page callback' => 'tri_wechat_register_check_page',
 		'access arguments' => array('access content'), 
 	);
+	$items['tri-wechat-register/token'] =  array(		//get cached wechat access_token etc
+		'title' => 'Wechat Access_token',
+		'page callback' => 'tri_wechat_register_token_page',
+		'access arguments' => array('access content'), 
+	);
 	return $items;
 }
 
@@ -499,7 +504,7 @@ function tri_wechat_register_router_page($real_uri) {
  */
 function tri_wechat_register_check_page() {
 	#$ent_user = entity_load('tri_wechat_user',array('ot7Dm0y_ky4WiDzdwuskqtrfE4Ac')); krumo($ent_user);
-	
+
 	// new module:check_wechat_auth
 	$wc_user = _get_wechat_user();
 	$get_state = isset($_GET['state'])? $_GET['state']:'home';
@@ -532,5 +537,40 @@ function tri_wechat_register_check_page() {
 		if(empty($path))	$path = '/';
 		drupal_goto($path);
 	}
-	
 }
+
+/**
+ * Page callback
+ */
+function tri_wechat_register_token_page() {
+	$content = array();
+	
+	$access_token = variable_get('tri_wechat_access_token','');
+	$access_token_expire = variable_get('tri_wechat_access_token_expire', 0);
+	if(!empty($access_token)) {
+		$access_token_expire = date('Y-m-d H:i:s', $access_token_expire);
+		$line = "Access_token: $access_token <br/>Expire: $access_token_expire ";
+		$content['access_token'] = array(
+			'#type' => 'markup',
+			'#markup' => $line,
+			'#prefix' => '<p>',
+			'#suffix' => '</p>',
+		);
+	}
+	
+	$jsapi_ticket = variable_get('tri_wechat_jsapi_ticket','');
+	$jsapi_ticket_expire = variable_get('tri_wechat_jsapi_ticket_expire', 0);
+	if(!empty($jsapi_ticket)) {
+		$jsapi_ticket_expire = date('Y-m-d H:i:s', $jsapi_ticket_expire);
+		$line = "Jsapi_ticket: $jsapi_ticket <br/>Expire: $jsapi_ticket_expire ";
+		$content['jsapi_ticket'] = array(
+			'#type' => 'markup',
+			'#markup' => $line,
+			'#prefix' => '<p>',
+			'#suffix' => '</p>',
+		);
+	}
+	#krumo($content);
+	return $content;
+}
+
