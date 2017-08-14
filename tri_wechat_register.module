@@ -430,7 +430,7 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	
 	$to_user = $entity->openid;
 	$temp_id = WECHAT_TEMPL_ID_APPROVAL;	// 认证进度通知
-	$link = 'http://kyxg4z.natappfree.cc/tri-wechat-register-router/addentry';
+	$link = WECHAT_DOMAIN. '/tri-wechat-register-router/addentry';
 	$data = array(
 		'keyword1' => array(
 			'value' => '恭喜！您注册的账号已通过审核。',
@@ -460,7 +460,7 @@ function tri_wechat_register_deny_action(&$entity, $context) {
 	
 	$to_user = $entity->openid;
 	$temp_id = WECHAT_TEMPL_ID_APPROVAL;	// 认证进度通知
-	$link = 'http://kyxg4z.natappfree.cc/tri-wechat-register/test-input';
+	$link = WECHAT_DOMAIN . '/tri-wechat-register/test-input';
 	$data = array(
 		'keyword1' => array(
 			'value' => '抱歉！您注册的账号未通过审核。',
