@@ -432,6 +432,10 @@ function tri_wechat_register_approve_action(&$entity, $context) {
 	$temp_id = WECHAT_TEMPL_ID_APPROVAL;	// 认证进度通知
 	$link = WECHAT_DOMAIN. '/tri-wechat-register-router/addentry';
 	$data = array(
+		'first' => array(
+			'value' => 'Hi ' . $tri_user->label(),
+			'color' => '#173177',
+		),
 		'keyword1' => array(
 			'value' => '恭喜！您注册的账号已通过审核。',
 			'color' => '#173177',
@@ -523,9 +527,6 @@ function tri_wechat_register_check_page() {
 		return $content;
 	} 
 	else {	//'have_approved'
-//		$content = t('You account has been approved. Now you have login automatically...').$get_state;
-//		return $content;
-		
 		// auto login
 		$form_state = array();
 		$form_state['uid'] = $user_status->uid;
