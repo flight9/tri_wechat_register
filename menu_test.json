@@ -7,12 +7,12 @@
         {	
 	   "type":"view",
 	   "name":"路由",
-	   "url":"http://m5giuy.natappfree.cc/tri-wechat-register-router/home"
+	   "url":"http://tk3wgw.natappfree.cc/tri-wechat-register-router/home"
 	},
 	{	
 	   "type":"view",
 	   "name":"注册",
-	   "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx97eaa4a1320ff795&redirect_uri=http%3A%2F%2Fm5giuy.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect"
+	   "url":"https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx97eaa4a1320ff795&redirect_uri=http%3A%2F%2Ftk3wgw.natappfree.cc%2Ftri-wechat-register&response_type=code&scope=snsapi_userinfo&state=0#wechat_redirect"
 	},
 	{
 	   "type":"view",
