@@ -10,7 +10,7 @@ const LINKTYPE_DENIED = 2;
 const USER_STATUS_ACTIVE = 1;
 const USER_STATUS_BLOCKED = 0;
 
-header('Content-Type:text/html; charset=utf-8');
+//header('Content-Type:text/html; charset=utf-8');		//enable 时会造成一个 warning 说不能修改 header
 
 /**
  * Implements hook_menu
