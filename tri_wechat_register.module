@@ -43,6 +43,17 @@ function tri_wechat_register_menu() {
 		'page callback' => 'tri_wechat_register_token_page',
 		'access arguments' => array('access content'), 
 	);
+	$items['tri-wechat-register/companyname'] =  array(
+		'title' => 'Wechat Test Company Name',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('tri_wechat_register_companyname_form'),
+		'access callback' => true, 
+	);
+	$items['tri-wechat-register/companyname_callback'] = array(
+		'page callback' => 'tri_wechat_register_companyname_callback',
+		'type' => MENU_CALLBACK,
+		'access callback' => true,
+	);
 	return $items;
 }
 
@@ -270,6 +281,46 @@ function tri_wechat_register_form_submit(&$form, &$form_state) {
 	
 	//no need to redirect, for D will go back to start status
 	//$form_state['redirect'] = 'TODO';	//another page?
+}
+
+/**
+ * Form create
+ */
+function tri_wechat_register_companyname_form($form, &$form_state) {
+  $form['info'] = array(
+    '#markup' => '<div>' . t("This example does a simplest possible autocomplete by company name.") . '</div>',
+  );
+
+  $form['company'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Choose a company name'),
+    '#autocomplete_path' => 'tri-wechat-register/companyname_callback',
+  );
+
+  return $form;
+}
+
+/**
+ * Page callback
+ */
+function tri_wechat_register_companyname_callback($string = "") {
+	$matches = array();
+	if ($string) {
+		$key = urlencode($string);
+		$tm = round(microtime(true) * 1000); // millisecond
+		$url = "https://www.tianyancha.com/search/suggest.json?key=$key&_=$tm";
+		$response = drupal_http_request($url);
+		$result = json_decode($response->data);
+		//echo '<pre>';	print_r($result);	echo '</pre>';
+		if( $result->state == 'ok') {
+			foreach($result->data as $item) {
+				$matches[$item->name] = check_plain($item->name);
+			}
+		}
+		//echo '<pre>';	print_r($matches);	echo '</pre>';
+	}
+
+	drupal_json_output($matches);
 }
 
 /**
