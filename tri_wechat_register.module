@@ -317,6 +317,18 @@ function tri_wechat_register_companyname_callback($string = "") {
 				$matches[$item->name] = check_plain($item->name);
 			}
 		}
+		
+		// 自定义公司名称
+		$additionals = array(
+			'金拱门'	=> '金拱门(中国)有限公司',
+			// '倍省节能'	=> '倍省节能技术咨询(上海)有限公司',
+			'baseline'	=> 'Baseline Technical Services',
+		);
+		foreach($additionals as $k => $v) {
+			if( stripos($k, $string) !== FALSE) {
+				$matches[$v] = check_plain($v);
+			}
+		}
 		//echo '<pre>';	print_r($matches);	echo '</pre>';
 	}
 
