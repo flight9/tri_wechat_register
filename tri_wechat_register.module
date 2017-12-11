@@ -321,8 +321,12 @@ function tri_wechat_register_companyname_callback($string = "") {
 		// 自定义公司名称
 		$additionals = array(
 			'金拱门'	=> '金拱门(中国)有限公司',
-			// '倍省节能'	=> '倍省节能技术咨询(上海)有限公司',
-			'baseline'	=> 'Baseline Technical Services',
+			//'倍省节能'	=> '倍省节能技术咨询(上海)有限公司',
+			'baseline 倍省节能'	=> 'Baseline Technical Services',
+			//'百胜投资'	=> '百胜（中国）投资有限公司',
+			'YUM! Restaurants 百胜投资'	=> 'YUM! Restaurants (China) Investment Company Limited',
+			'万科企业 vanke'	=> '万科企业股份有限公司',
+			//'Vanke'	=> 'China Vanke Co.,Ltd',
 		);
 		foreach($additionals as $k => $v) {
 			if( stripos($k, $string) !== FALSE) {
